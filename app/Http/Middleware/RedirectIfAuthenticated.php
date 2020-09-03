@@ -18,10 +18,39 @@ class RedirectIfAuthenticated
      */
     public function handle($request, Closure $next, $guard = null)
     {
+        
         if (Auth::guard($guard)->check()) {
-            return redirect(RouteServiceProvider::HOME);
-        }
+            $user = Auth::user();
 
+            $redirectPath = route('dashboard');
+
+            $role = auth()->user()->role;
+            $sourcing = $user['sourcing'];
+            switch ($role) {
+
+                case 'admin':
+                    $redirectPath = route('admin.dashboard');
+                    break;
+
+                case 'accountant':
+                    $redirectPath = route('accountant.dashboard');
+                    break;
+
+                case 'hr':
+                    $redirectPath = route('hr.dashboard');
+                    break;
+
+                case 'recruiter':
+                    if ($sourcing == null) {
+                        $redirectPath = route('dashboard');
+                    } else {
+                        $redirectPath = route('recruiter.dashboard');
+                    }
+                    break;
+            }
+
+            return redirect($redirectPath);
+        }
         return $next($request);
     }
 }
