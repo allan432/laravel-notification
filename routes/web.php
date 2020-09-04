@@ -20,7 +20,9 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/dashboard', 'HomeController@index')->name('dashboard');
+Route::get('/notifications', 'Users\Recruiter\RecruiterNotificationController@show')->name('notifications.show');
 
 Route::middleware('roles:admin')->prefix('admin')->as('admin.')->group(function () {
     Route::get('/dashboard', 'Users\Admin\DashboardController@index')->name('dashboard');
+    Route::resource('/notifications', 'Users\Admin\NotificationController');
 });
