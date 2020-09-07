@@ -11,16 +11,19 @@ class AdminToRecruiterNotification extends Notification
 {
     use Queueable;
 
-    protected $message;
-
+    protected $title;
+    protected $description;
+    protected $batch_id;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($message)
+    public function __construct($title, $description, $batch_id)
     {
-        $this->message = $message;
+        $this->title = $title;
+        $this->description = $description;
+        $this->batch_id = $batch_id;
     }
 
     /**
@@ -31,7 +34,7 @@ class AdminToRecruiterNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail', 'database'];
+        return ['database'];
     }
 
     /**
@@ -57,7 +60,9 @@ class AdminToRecruiterNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'message' => $this->message
+            'title' => $this->title,
+            'description' => $this->description,
+            'batch_id' => $this->batch_id
         ];
     }
 }

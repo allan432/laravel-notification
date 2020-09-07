@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Users\Admin;
 
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Notification;
 use App\Notifications\AdminToRecruiterNotification;
 
 class NotificationController extends Controller
@@ -16,17 +19,11 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        return view('users.admin.notification');
-    }
+        $notifications = \App\Notification::all();
+        
+        json_decode($notifications, true);
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return view('users.admin.notification', compact('notifications'));
     }
 
     /**
@@ -38,16 +35,25 @@ class NotificationController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'message'=>'required',
+            'title'=>'required',
+            'description'=>'required',
         ]); // validate 
 
-        $users = User::where('role', 'recruiter')->get();
+        $users = User::where('role', $request->get('role'))->get();
 
-        foreach ($users as $user) {
-            $user->notify(new AdminToRecruiterNotification($request->get('message')));
+        if($users->isEmpty()){
+            return response()->json(['status' => false ,'message' => "No users found to send notification"]);
         }
 
-        return redirect()->back();
+        $title = $request->get('title');
+        $description = $request->get('description');
+
+        $current_timestamp = Carbon::now()->timestamp;
+        $uuid = uniqid();
+        $batch_id = $current_timestamp.$uuid;
+
+        Notification::send($users, new AdminToRecruiterNotification($title, $description, $batch_id));
+        return response()->json(['status' => true ,'message' => "Notification Created" ],200);
     }
 
     /**

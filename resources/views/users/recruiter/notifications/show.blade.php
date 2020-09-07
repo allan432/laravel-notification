@@ -12,7 +12,7 @@
                         @forelse($notifications as $notification)
                             <li>
                                 @if($notification->type === 'App\Notifications\AdminToRecruiterNotification')
-                                    The admin has Notification for you. {{ $notification->data['message'] }}
+                                    The admin has Notification for you. {{ $notification->data['title'] }}
                                 @endif
                             </li>
                         @empty
